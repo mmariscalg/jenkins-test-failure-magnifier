@@ -1,0 +1,6 @@
+{
+  "user": "mmariscalg",
+  "pass": "Passpro123",
+  "jenkinsUrl": "http://localhost:8080/",
+  "jenkinsPlugin": false
+}

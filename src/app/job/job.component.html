@@ -1,0 +1,58 @@
+<header *ngIf="isSimpleJob(jobModel)">
+  <h2><a title="{{jobModel.name}}" href="{{jobModel.urlJob}}">Job: {{jobModel.name}}</a></h2>
+</header>
+<div *ngIf="isSimpleJob(jobModel)" name="simpleJob" class="slots">
+  <div class="slot-1"><h2><label for="lastBuild">Last Build:</label>
+    <a id="lastBuild" href="{{jobModel.urlJobExecution}}">{{jobModel.displayLastExecNumber}}</a></h2></div>
+  <div class="slot-2">{{jobModel.timestamp | date:"dd/MM/yy hh:mm"  }}</div>
+</div>
+
+<header *ngIf="!isSimpleJob(jobModel)">
+  <h2>Group: {{jobModel.name}}</h2>
+</header>
+<div *ngIf="!isSimpleJob(jobModel)" name="groupedJob" class="slots">
+  <div *ngIf="!hideOK" class="slot-3">
+    <h2>
+      <label for="configurations">Builds:</label>
+    </h2>
+  </div>
+  <div *ngIf="hideOK&&errorAtLeastOne(jobModel)" class="slot-3">
+    <h2>
+      <label for="configurations">Builds:</label>
+    </h2>
+  </div>
+  <ul id="configurations">
+    <ng-template ngFor let-jobBuild [ngForOf]="jobModel.jobsList">
+        <li *ngIf="!hideOK">
+          <div class="slot-1">
+            <span><a name="{{jobBuild.name}}" href="{{jobBuild.urlJob}}"> {{jobBuild.name}} </a></span>
+            <span><a name="build" id="build" href="{{jobBuild.urlJobExecution}}"> | {{jobBuild.displayLastExecNumber}} </a></span>           
+            <span [ngSwitch]="jobBuild.result"> &rArr;
+                <span *ngSwitchCase="'SUCCESS'" class="job-exec-ok">Result: OK</span>
+                <span *ngSwitchCase="'SUCCESS_'" class="job-exec-ok">Result: NO OK | Branch: {{jobBuild.master}}</span>
+                <span *ngSwitchCase="'FAILURE'" class="job-exec-ko">Result: KO &rArr; {{jobBuild.param}}</span>
+                <span *ngSwitchCase="'UNSTABLE'" class="job-exec-un">Result: UN</span>
+                <span *ngSwitchCase="'ABORTED'">Result: - AB</span>
+                <span *ngSwitchCase="'DISABLED'">Result: - N/A</span>
+                <span *ngSwitchDefault class="job-exec-unk">Result: !</span>
+            </span>
+            <span name="OtherData"> | {{jobBuild.timestamp | date:"dd/MM/yy hh:mm" }}</span>
+          </div>
+        </li>
+        <li *ngIf="hideOK&&jobBuild.result!=='SUCCESS'&&jobBuild.result!=='SUCCESS_'">
+          <div class="slot-1">
+            <span><a name="{{jobBuild.name}}" href="{{jobBuild.urlJob}}"> {{jobBuild.name}} </a></span>
+            <span><a name="build" id="build" href="{{jobBuild.urlJobExecution}}"> | {{jobBuild.displayLastExecNumber}} </a></span>           
+            <span [ngSwitch]="jobBuild.result"> &rArr;
+              <span *ngSwitchCase="'FAILURE'" class="job-exec-ko">Result: KO &rArr; {{jobBuild.param}}</span>
+              <span *ngSwitchCase="'UNSTABLE'" class="job-exec-un">Result: UN</span>
+              <span *ngSwitchCase="'ABORTED'">Result: - AB</span>
+              <span *ngSwitchCase="'DISABLED'">Result: - N/A</span>
+              <span *ngSwitchDefault class="job-exec-unk">Result: !</span>
+            </span>
+            <span name="OtherData"> | {{jobBuild.timestamp | date:"dd/MM/yy hh:mm" }}</span>
+          </div>
+        </li>
+    </ng-template>
+  </ul>
+</div>

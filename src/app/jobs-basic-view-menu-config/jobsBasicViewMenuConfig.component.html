@@ -1,0 +1,77 @@
+  <nav id="menuLateral">
+    <section [class.showSettings]="toggleSettings">
+      <input id="settings-toggle" type="checkbox" class="settings" [(ngModel)]="toggleSettings"/>
+      <label for="settings-toggle" title="Configure Build Monitor Settings">Settings</label>
+
+      <ul>
+        <li class="settings-option">
+          <label for="combViewSelction">Views:</label>
+          <select [(ngModel)]="viewConfig.jobsViewSelected" class="form-control" id="combViewSelction" name="combViewSelction" (ngModelChange)="loadViewSelected()" >
+            <option *ngFor="let view of viewConfig.views" [selected]="view.name == viewConfig.jobsViewSelected.name" [disabled]="view.name == viewConfig.jobsViewSelected.name" [ngValue]="view">{{view.name}}</option>
+          </select>
+        </li>
+        <li class="settings-option">
+          <label for="combNumColumns">Maximun number of columns:</label>
+          <select [(ngModel)]="viewConfig.numColSelected" class="form-control" id="combNumColumns" name="combNumColumns" (change)="setColumnsLayout()" >
+            <option *ngFor="let numColumn of viewConfig.combNumColumns" [value]="numColumn">{{numColumn}}</option>
+          </select>
+        </li>
+      </ul>
+      
+      
+        <form *ngIf="toggleSettings">
+        <fieldset>
+          <legend>Jenkins Configuration:</legend>
+        <ul>
+        <li class="settings-option">          
+            <div>
+              <label for="inputPollInterval">Refresh interval (in seconds):</label>
+              <input type="number" [(ngModel)]="viewConfig.pollingInterval" id="inputPollInterval" name="inputPollInterval" min="1" max="60">
+            </div>
+        </li>
+         <li class="settings-option">
+            <div>
+              <label for="jenkinsUser">Jenkins User:</label>
+              <input type="text" name="jenkinsUser" id="jenkinsUser" [(ngModel)]="viewConfig.configuration.user">            
+            </div>
+         </li>
+          <li class="settings-option">
+            <div>
+              <label for="jenkinsPassword">Jenkins Password:</label>
+              <input type="password" name="jenkinsPassword" id="jenkinsPassword" [(ngModel)]="viewConfig.configuration.pass">
+            </div>
+          </li>
+          <li class="settings-option">
+            <div>
+              <label for="jenkinsUrl">Jenkins Url:</label>
+              <input type="text" name="jenkinsUrl" id="jenkinsUrl" [(ngModel)]="viewConfig.configuration.jenkinsUrl">
+            </div>
+          </li>
+          <li class="settings-option">
+            <div>
+              <label for="jenkinsHideOK">Hide success builds:</label>
+            <div>
+            </div>
+              <input type="checkbox" name="jenkinsHideOK" id="jenkinsHideOK" [(ngModel)]="viewConfig.hideOK" (change)="hideBuilds()">
+            </div>
+          </li>
+          <li class="settings-option">
+            <div>
+              <label for="jenkinsMaster">Hide errors for no Master branches:</label>
+            <div>
+            </div>
+              <input type="checkbox" name="jenkinsMaster" id="jenkinsMaster" [(ngModel)]="viewConfig.branches" (change)="allNoMasterOK()">
+            </div>
+          </li>
+          <li class="settings-option">
+            <div>
+              <input type="submit" (click)="onSubmit()" value="Send">
+            </div>          
+          </li>
+        </ul>
+        </fieldset>
+        </form>
+
+    </section>
+  </nav>
+
