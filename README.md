@@ -7,11 +7,16 @@
   - Config the grid maximun number of columns.
   - Set polling interval in seconds.
   - If exist Jobs cofigured as a group in Jenkins, that jobs will be shows as a single element in the grid.
+    - Group by group name, whichever is the parametrized name of the group. 
   - Config the credentials and URL of the Jenkins Server that you want monitorize.
+  - Show which parameter caused the error.
+  - Group by parameter for easier viewing.
+  - Option to hide jobs finished successfully.
+  - Option to show as success the jobs run from a branch different to Master branch. 
   ![Features](doc/img.png)
   
 # Installation
-You can use this application as a plugin of Jenkins or integrated into any web application. Install application as a plugin there is no mistery, but if you want to use it into a web app, click on the link https://github.com/franciscoRdiaz/monitor-pro-spa to more information.
+You can use this application as a plugin of Jenkins or integrated into any web application. Install application as a plugin there is no mistery, but if you want to use it into a web app, click on the link https://github.com/mmariscalg/jenkins-test-failure-magnifier to more information.
 
 # Quick Start
   Once the plugin's installation has finished, go to the Jenkins main page. An icon has been added at bottom of the left menu. To access the monitor plugin you must click on it.
