@@ -28,9 +28,25 @@ export class JobsBasicViewComponent implements OnInit, OnDestroy {
   jobsViewSelected: JobsBasicViewModel;
   timer: Observable<number>;
   subscription: Subscription;
+  filteredJobsModel: Job[] = [];
+  _listFilter = '';
+
+  get listFilter(): string {
+    return this._listFilter;
+  }
+  set listFilter(value: string) {
+    this._listFilter = value;
+    this.filteredJobsModel = this.listFilter ? this.performFilter(this.listFilter) : this.jobsModel;
+  }
 
   constructor(private jenkinsService: JenkinsService) {
     this.jobsViewSelected = new JobsBasicViewModel(undefined, 'No view selected jet.');
+  }
+
+  performFilter(filterBy: string): Job[] {
+    filterBy = filterBy.toLocaleLowerCase();
+    return this.jobsModel.filter((job: Job) =>
+      job.name.toLocaleLowerCase().indexOf(filterBy) !== -1);
   }
 
   /**
@@ -56,7 +72,10 @@ export class JobsBasicViewComponent implements OnInit, OnDestroy {
   public initLoadJobsStatus(url: string) {
 
     this.jenkinsService.getJobsStatus(url).subscribe(
-      jobsModelAux => this.jobsModel = jobsModelAux,
+      jobsModelAux => {
+        this.jobsModel = jobsModelAux,
+        this.filteredJobsModel = this.listFilter ? this.performFilter(this.listFilter) : this.jobsModel;
+      },
       error => console.log('Error retriving data')
     );
 
@@ -69,7 +88,10 @@ export class JobsBasicViewComponent implements OnInit, OnDestroy {
     this.subscription = this.timer
       .subscribe(() => {
         this.jenkinsService.getJobsStatus(url).subscribe(
-          jobsModelAux => this.jobsModel = jobsModelAux,
+          jobsModelAux => {
+            this.jobsModel = jobsModelAux,
+            this.filteredJobsModel = this.listFilter ? this.performFilter(this.listFilter) : this.jobsModel;
+          },
           error => console.log('Error retriving data')
         );
     });

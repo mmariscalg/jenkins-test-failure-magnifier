@@ -1,4 +1,10 @@
 <h2>View: {{jobsViewSelected.name}}</h2>
+<h2>Group filter 
+  <input type="text" placeholder="Search for groups.." [(ngModel)]='listFilter' />
+</h2>
+<h4>
+  Filtering by: {{listFilter}}
+</h4>
 <header>
   <menu-config (onSelectedView)="loadViewSelected($event)" (onSelectNumColumn)="setColumnsLayout($event)" (onSetPollingInterval)="setPollingInterval($event)"  (onUnsuscribePrevious)="unsuscribePrevious($event)" [urlJenkins]="urlJenkins">Configuration Menu</menu-config>
 </header>
@@ -6,7 +12,7 @@
 <div>
   <!-- Jobs List -->
   <ul id="widgets" [class] = "viewConfig.classColumn">
-    <li *ngFor="let jobData of jobsModel" [ngClass]="jobData.getClasses()">
+    <li *ngFor="let jobData of filteredJobsModel" [ngClass]="jobData.getClasses()">
       <job  [jobModel]="jobData"></job>
     </li>
   </ul>

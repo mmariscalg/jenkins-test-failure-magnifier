@@ -13,6 +13,7 @@
   - Group by parameter for easier viewing.
   - Option to hide jobs finished successfully.
   - Option to show as success the jobs run from a branch different to Master branch. 
+  - Filter by Group/Job name
   ![Features](doc/img.png)
   
 # Installation
