@@ -4,6 +4,7 @@ import {ConfigModel} from './configModel';
 import {isNullOrUndefined} from 'util';
 /**
  * Created by frdiaz on 07/01/2017.
+ * Modified by mmariscalg 27/06/2018
  */
 
 @Injectable()
@@ -27,7 +28,7 @@ export class ConfigService {
             .catch((error: any): any => {
               console.log('Deployed as plugin.');
               this._configModel = {'user': '', 'pass': '',
-               'jenkinsUrl': 'http://localhost:8080/jenkins/', 'jenkinsPlugin': true};
+               'jenkinsUrl': 'http://localhost:8080/jenkins/', 'jenkinsPlugin': true, 'emailList': ''};
               resolve();
         })
           .subscribe(data => {
@@ -63,5 +64,13 @@ export class ConfigService {
 
   set configModel(value: ConfigModel) {
     this._configModel = value;
+  }
+
+  getEmailList() {
+    return this._configModel.emailList;
+  }
+
+  setEmailList(emails: string) {
+    this._configModel.emailList = emails;
   }
 }

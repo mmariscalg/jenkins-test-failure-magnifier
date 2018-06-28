@@ -14,6 +14,8 @@
   - Option to hide jobs finished successfully.
   - Option to show as success the jobs run from a branch different to Master branch. 
   - Filter by Group/Job name
+  - Navigation between folders to show jobs inside them 
+  - Option to send emails when a job crashes ("Job Direct Mail Plugin" is required to be installed)
   ![Features](doc/img.png)
   
 # Installation
@@ -24,7 +26,7 @@ You can use this application as a plugin of Jenkins or integrated into any web a
   
   ![Features](doc/img1.png)
 
-By default, Monitor Pro tries to connect to Jenkins at http://localhost:8080/jenkins, if we have cofigurated Jenkins on another port or basepath, we need to set the correct value in the configuration menu. Rememmber that Monitor Pro runs on Jenkis,  so it is not to set any user or password. You only need to fill in these filds if you run Monitor Pro on another web application or if you want monitoring another jenkins server.
+By default, Monitor Pro tries to connect to Jenkins at http://localhost:8080/jenkins, if we have cofigurated Jenkins on another port or basepath, we need to set the correct value in the configuration menu. Remember that Monitor Pro runs on Jenkis, so it is not to set any user or password. You only need to fill in these filds if you run Monitor Pro on another web application or if you want monitoring another jenkins server.
 
 # Technology
   The interface and logic of Monitor Pro, are built entirely with the Angular Framework and TypeScript. Jelly, Stapler or Java, are only used to integrate the application as a plugin on jenkins. Monitor Pro obtains job status information by making requests to the Jenkins REST API..

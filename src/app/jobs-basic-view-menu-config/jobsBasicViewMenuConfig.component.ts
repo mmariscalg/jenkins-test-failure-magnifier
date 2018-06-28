@@ -3,12 +3,12 @@
  * Modified by mmariscalg on 27/02/2018.
  */
 
-import {Component, Output, EventEmitter, Input, OnInit} from '@angular/core';
+import { Component, Output, EventEmitter, Input, OnInit } from '@angular/core';
 import { JobsBasicViewMenuConfig } from './jobsBasicViewMenuConfig.model';
-import {JenkinsService} from '../commons/jenkinsService.service';
-import {JobsBasicViewModel} from '../jobs-basic-view/jobsBasicView.model';
-import {ConfigService} from '../commons/configService';
-import {configServiceFactory} from '../commons/configServiceFactory';
+import { JenkinsService } from '../commons/jenkinsService.service';
+import { JobsBasicViewModel } from '../jobs-basic-view/jobsBasicView.model';
+import { ConfigService } from '../commons/configService';
+import { configServiceFactory } from '../commons/configServiceFactory';
 import { ConfigPropService } from './../commons/configPropService';
 
 @Component({
@@ -60,7 +60,7 @@ export class JobsBasicViewMenConfComponent implements OnInit {
 
     this.jenkinsService.getViews(this.urlJenkins).subscribe(
       views => {
-        for (let view of views.views){
+        for (const view of views.views){
           this.viewConfig.views.push(view);
           if (view.name === views.primaryView.name) {
             this.viewConfig.jobsViewSelected = view;
@@ -102,5 +102,9 @@ export class JobsBasicViewMenConfComponent implements OnInit {
   allNoMasterOK() {
     this._propService.setBranches(this.viewConfig.branches);
     this.loadViews();
+  }
+
+  sendEmail() {
+    this._propService.setEmail(this.viewConfig.email);
   }
 }

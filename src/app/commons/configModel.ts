@@ -1,5 +1,6 @@
 /**
- * Created by frdiaz on 08/01/2017.
+ * Created by frdiaz on 08/01/2017
+ * Modified by mmariscalg 27/06/2018
  */
 
 export interface ConfigModel {
@@ -7,4 +8,5 @@ export interface ConfigModel {
   pass: string;
   jenkinsUrl: string;
   jenkinsPlugin: boolean;
+  emailList: string;
 }

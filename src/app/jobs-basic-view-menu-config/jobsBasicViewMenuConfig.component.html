@@ -57,10 +57,24 @@
           </li>
           <li class="settings-option">
             <div>
-              <label for="jenkinsMaster">Hide errors for no Master branches:</label>
+              <label for="jenkinsMaster">Hide errors NO Master branches:</label>
             <div>
             </div>
               <input type="checkbox" name="jenkinsMaster" id="jenkinsMaster" [(ngModel)]="viewConfig.branches" (change)="allNoMasterOK()">
+            </div>
+          </li>
+          <li class="settings-option">
+            <div>
+              <label for="jenkinsEmail">Send info email if group fails:</label>
+            <div>
+            </div>
+              <input type="checkbox" name="jenkinsEmail" id="jenkinsEmail" [(ngModel)]="viewConfig.email" (change)="sendEmail()">
+            </div>
+          </li>
+          <li class="settings-option">
+            <div>
+              <label for="emailList">Email list:</label>
+              <input type="text" name="emailList" id="emailList" [(ngModel)]="viewConfig.configuration.emailList">
             </div>
           </li>
           <li class="settings-option">

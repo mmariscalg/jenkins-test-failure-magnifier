@@ -15,5 +15,7 @@ export class JobsBasicViewMenuConfig {
   pollingInterval= 5;
   hideOK = false;
   branches = false;
-  configuration: ConfigModel = {'user': 'monitor-pro', 'pass': '', 'jenkinsUrl': 'http://localhost:8080/jenkins/', 'jenkinsPlugin': false}
+  email = false;
+  configuration: ConfigModel = {'user': 'monitor-pro', 'pass': '', 'jenkinsUrl': 'http://localhost:8080/jenkins/', 
+    'jenkinsPlugin': false, 'emailList' : ''}
 }

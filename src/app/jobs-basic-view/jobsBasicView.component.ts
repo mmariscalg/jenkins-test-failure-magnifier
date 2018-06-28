@@ -1,5 +1,6 @@
 /**
  * Created by frdiaz on 02/12/2016.
+ * Modified by mmariscalg on 22/06/2018.
  */
 
 import {Component, Input, OnDestroy} from '@angular/core';
@@ -7,10 +8,14 @@ import { OnInit } from '@angular/core';
 import { JobsBasicViewConfig } from './jobsBasicViewConfig';
 import 'rxjs/Rx';
 import { Observable } from 'rxjs/Rx';
-import {JenkinsService} from '../commons/jenkinsService.service';
-import {Job} from '../job/job.model';
-import {JobsBasicViewModel} from './jobsBasicView.model';
-import {Subscription} from 'rxjs/Subscription';
+import { JenkinsService } from '../commons/jenkinsService.service';
+import { Job } from '../job/job.model';
+import { JobsBasicViewModel } from './jobsBasicView.model';
+import { Subscription } from 'rxjs/Subscription';
+import { ConfigPropService } from './../commons/configPropService';
+import { SimpleJob } from '../job/simpleJob.model';
+import { JobsGroup } from '../job/jobsGroup.model';
+import { paramDictionary } from './../commons/paramDictionary';
 
 @Component({
   selector: 'jobsBasicView',
@@ -24,12 +29,15 @@ export class JobsBasicViewComponent implements OnInit, OnDestroy {
   urlJenkins: string;
 
   jobsModel: Job[] = [];
+  private jobsModelEmail = [];
+  private jobsModelEmailStarted = false;
   viewConfig: JobsBasicViewConfig;
   jobsViewSelected: JobsBasicViewModel;
   timer: Observable<number>;
   subscription: Subscription;
-  filteredJobsModel: Job[] = [];
+  private filteredJobsModel: Job[] = [];
   _listFilter = '';
+  private params: paramDictionary = {};
 
   get listFilter(): string {
     return this._listFilter;
@@ -39,7 +47,7 @@ export class JobsBasicViewComponent implements OnInit, OnDestroy {
     this.filteredJobsModel = this.listFilter ? this.performFilter(this.listFilter) : this.jobsModel;
   }
 
-  constructor(private jenkinsService: JenkinsService) {
+  constructor(private jenkinsService: JenkinsService, private _propService: ConfigPropService) {
     this.jobsViewSelected = new JobsBasicViewModel(undefined, 'No view selected jet.');
   }
 
@@ -65,19 +73,20 @@ export class JobsBasicViewComponent implements OnInit, OnDestroy {
     }
   }
 
+  async updateJobs (url: string) {
+    this.jobsModel = await this.jenkinsService.getJobsStatus(url);
+    this.filteredJobsModel = this.listFilter ? this.performFilter(this.listFilter) : this.jobsModel;
+    this.params = this.jenkinsService.getJobsGroupsParam();
+  }
+
   /**
    * Starts load of jobs status
    * @param url
    */
   public initLoadJobsStatus(url: string) {
 
-    this.jenkinsService.getJobsStatus(url).subscribe(
-      jobsModelAux => {
-        this.jobsModel = jobsModelAux,
-        this.filteredJobsModel = this.listFilter ? this.performFilter(this.listFilter) : this.jobsModel;
-      },
-      error => console.log('Error retriving data')
-    );
+    this.jenkinsService.reset();
+    this.updateJobs(url);
 
     /* Starts the polling configuration */
     if (this.subscription !== undefined) {
@@ -87,13 +96,62 @@ export class JobsBasicViewComponent implements OnInit, OnDestroy {
     this.timer = Observable.interval(this.viewConfig.pollingIntervalInMilSecond);
     this.subscription = this.timer
       .subscribe(() => {
-        this.jenkinsService.getJobsStatus(url).subscribe(
-          jobsModelAux => {
-            this.jobsModel = jobsModelAux,
-            this.filteredJobsModel = this.listFilter ? this.performFilter(this.listFilter) : this.jobsModel;
-          },
-          error => console.log('Error retriving data')
-        );
+        this.jenkinsService.reset();
+        this.updateJobs(url);
+
+        for (let entry of this.jobsModel) {
+          if (entry instanceof JobsGroup) {
+            let entryGroup = <JobsGroup>entry;
+            for (let subentry of entryGroup.jobsList) {
+              if (subentry.statusClass === 'failing') {
+                if (this.jobsModelEmail.indexOf(subentry.name) === -1) {
+                  if (this._propService.getEmail() && this.jobsModelEmailStarted) {
+                    this.jenkinsService.sendEmailIfFail('New FAILURE: '
+                    + subentry.name, 'JOB  ' + subentry.name + ' crashed'
+                    + ((this.params[subentry.name]) === undefined ? '' : ' with next PARAMS: ' + (this.params[subentry.name]))
+                    + '. Please, for further details visit: ' + subentry.urlJob, subentry.urlJob)
+                      .subscribe(
+                      response => response,
+                      error => console.log(error)
+                    );
+                  }
+                  console.log('New FAILURE: ' + subentry.name);
+                  this.jobsModelEmail.push(subentry.name);
+                }
+              } else {
+                if (this.jobsModelEmail.indexOf(subentry.name) !== -1) {
+                  console.log('New Success: ' + subentry.name);
+                  this.jobsModelEmail.splice(this.jobsModelEmail.indexOf(subentry.name), 1);
+                }
+              }
+            }
+          } else {
+            let simpleEntry = <SimpleJob>entry;
+            if (simpleEntry.statusClass === 'failing') {
+              if (this.jobsModelEmail.indexOf(simpleEntry.name) === -1) {
+                if (this._propService.getEmail() && this.jobsModelEmailStarted) {
+                  this.jenkinsService.sendEmailIfFail('New FAILURE: '
+                  + simpleEntry.name, 'JOB  ' + simpleEntry.name + ' crashed'
+                  + ((this.params[simpleEntry.name]) === undefined ? '' : ' with next PARAMS: ' + (this.params[simpleEntry.name]))
+                  + '. Please, for further details visit: ' + simpleEntry.urlJob, simpleEntry.urlJob)
+                    .subscribe(
+                    response => response,
+                    error => console.log(error)
+                  );
+                }
+                console.log('New FAILURE: ' + simpleEntry.name);
+                this.jobsModelEmail.push(simpleEntry.name);
+              }
+            } else {
+              if (this.jobsModelEmail.indexOf(simpleEntry.name) !== -1) {
+                console.log('New Success: ' + simpleEntry.name);
+                this.jobsModelEmail.splice(this.jobsModelEmail.indexOf(simpleEntry.name), 1);
+              }
+            }
+          }
+        }
+
+        this.jobsModelEmailStarted = true;
     });
     /* Ends the polling configuration */
   }

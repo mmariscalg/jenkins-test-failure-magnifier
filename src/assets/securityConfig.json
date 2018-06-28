@@ -2,5 +2,6 @@
   "user": "monitor-pro",
   "pass": "",
   "jenkinsUrl": "http://localhost:8080/jenkins",
-  "jenkinsPlugin": false
+  "jenkinsPlugin": false,
+  "emailList": "monitor-pro@domain.com"
 }

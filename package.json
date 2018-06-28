@@ -23,8 +23,12 @@
     "@angular/router": "^4.0.0",
     "angular-crumbs": "^2.0.3",
     "core-js": "^2.4.1",
+    "emailjs": "^2.1.0",
+    "emailjs-com": "^2.1.1",
+    "emailjs-smtp-client": "^2.0.0",
     "jenkins-api": "^0.3.1",
     "jenkins-api-ts-typings": "^0.8.7",
+    "nodemailer": "^4.6.6",
     "rxjs": "^5.1.0",
     "zone.js": "^0.8.4"
   },

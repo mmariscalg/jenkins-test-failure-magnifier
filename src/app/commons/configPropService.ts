@@ -9,6 +9,7 @@ export class ConfigPropService {
 
   private hideOK: boolean;
   private branches: boolean;
+  private email: boolean;
 
   getHideOK() {
     return this.hideOK;
@@ -24,5 +25,13 @@ export class ConfigPropService {
 
   setBranches(branches: boolean) {
     this.branches = branches;
+  }
+
+  getEmail() {
+    return this.email;
+  }
+
+  setEmail(email: boolean) {
+    this.email = email;
   }
 }

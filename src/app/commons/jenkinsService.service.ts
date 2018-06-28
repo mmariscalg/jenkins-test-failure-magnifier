@@ -1,6 +1,6 @@
 /**
  * Created by frdiaz on 02/12/2016.
- * Modified by mmariscalg on 27/02/2018.
+ * Modified by mmariscalg on 22/06/2018.
  */
 
 import { Injectable, group, Input } from '@angular/core';
@@ -14,6 +14,8 @@ import { JobsBasicViewModel } from '../jobs-basic-view/jobsBasicView.model';
 import { Observable } from 'rxjs/Rx';
 import { ConfigGroup } from './configGroup';
 import { ConfigPropService } from './configPropService';
+import { FormsModule } from '@angular/forms';
+import { paramDictionary } from './paramDictionary';
 
 @Injectable()
 export class JenkinsService {
@@ -25,7 +27,7 @@ export class JenkinsService {
   private resquestOptions: RequestOptions;
   private jobsGroupsFinded= {};
   private jobsGroupsNamesList: string[] = [];
-  private jobsGroupsParam = new Map();
+  private jobsGroupsParam: paramDictionary = {};
   private groups: ConfigGroup[] = [];
   private controlBranch = new Map();
 
@@ -40,10 +42,11 @@ export class JenkinsService {
       this.headers = new Headers({});
       this.headers.append('Authorization', 'Basic ' + btoa(this.configService.getUser() + ':' + this.configService.getPass()));
     }
+
     this.headers.append('Content-Type', 'application/json');
     this.resquestOptions = new RequestOptions({
       headers: this.headers,
-    })
+    });
   }
 
   /**
@@ -63,39 +66,46 @@ export class JenkinsService {
       .catch((error: any) => Observable.throw(error.json().error || 'Server error'));
   }
 
+  reset() {
+    this.jobsGroupsFinded = {};
+    this.jobsGroupsNamesList = [];
+    this.groups = [];
+    this.jobsGroupsParam = {};
+  }
+
   /**
    * Starts retrieving and formatting process of the Jobs State Data.
    * @param urlFolderOfJobs
    * @returns {Observable<R>}
    */
-  getJobsStatus(urlFolderOfJobs: string) {
-    this.jobsGroupsFinded = {};
-    this.jobsGroupsNamesList = [];
-    this.groups = [];
-    this.jobsGroupsParam = new Map();
+  async getJobsStatus(urlFolderOfJobs: string): Promise<Job[]> {
 
     if (urlFolderOfJobs === undefined) {
       this.invokedUrl = this.configService.getJenkinsUrl()  + JenkinsService.endJobsDataUrl;
     }else {
       this.invokedUrl = urlFolderOfJobs + JenkinsService.endJobsDataUrl;
     }
-    return this.http.post(this.invokedUrl, undefined, this.resquestOptions)
-      .map(response => this.createJobData(response.json().jobs))
-      .catch((error: any) => Observable.throw(error.json().error || 'Server error'))
+
+    return await this.http.get(this.invokedUrl, this.resquestOptions)
+    .map(response => {
+      return this.createJobData(response.json().jobs);
+    })
+    .catch((error: any) => Observable.throw(error.json().error || 'Server error'))
+    .toPromise();
   }
 
   /**
    * Converts backend Jobs Objects in to frontend Jobs Objects
    * @param jobs
    */
-  createJobData(jobs: any[]) {
+  async createJobData(jobs: any[]): Promise<Job[]> {
 
     let jobModelAux: Job[] = [];
 
     for (let job of jobs){
       if (job !== null) {
         if (job.buildable === undefined) {
-          this.getJobsStatus(job.url);
+          await this.getJobsStatus(job.url);
         }else {
           if (job.lastBuild !== null) {
               this.addJobToAGroup(job);
@@ -123,8 +133,8 @@ export class JenkinsService {
             }
           }
           if (jobModel.result !== 'SUCCESS') {
-            if (this.jobsGroupsParam.has(jobModel.name)) {
-              jobModel.param = this.jobsGroupsParam.get(jobModel.name);
+            if (this.jobsGroupsParam[jobModel.name] !== undefined) {
+              jobModel.param = this.jobsGroupsParam[jobModel.name];
             }
             principalJobModel.result = jobModel.result;
             console.log('GROUP JOB Result: ' + principalJobModel.name + ' - ' + principalJobModel.result);
@@ -135,6 +145,7 @@ export class JenkinsService {
         jobModelAux.push((principalJobModel));
       }
     }
+
     return jobModelAux;
 
   }
@@ -189,9 +200,9 @@ export class JenkinsService {
               this.jobsGroupsNamesList.push(auxName);
               this.jobsGroupsFinded[auxName] = [job];
             }
-            let auxParamsValues = this.createPrintableParams(auxParams);
-            if (!this.jobsGroupsParam.has(job.name)) {
-              this.jobsGroupsParam.set(job.name, auxParamsValues);
+            let auxParamsValues: string = this.createPrintableParams(auxParams);
+            if (this.jobsGroupsParam[job.name] === undefined) {
+              this.jobsGroupsParam[job.name] = auxParamsValues;
             }
           }
         }else {
@@ -238,7 +249,23 @@ export class JenkinsService {
     return chain;
   }
 
+  sendEmailIfFail (subject: String, content: String, job: String) {
+    let headers = new Headers({ 'Content-Type': 'application/x-www-form-urlencoded' });
+    let options = new RequestOptions({ headers: headers });
+
+    return this.http.post(job + 'send_mail/configSubmit',
+      // tslint:disable-next-line:max-line-length
+      'json= {"from": "JENKINS-TEST-FAILURE-MAGNIFIER", "to": "' + this.configService.getEmailList() + '", "addDev": true, "subject": "' + subject + '", "content": "' + content + '", "chooseTemplate": ""}',
+      options)
+      .map(response => response)
+      .catch((error: any) => Observable.throw(error.json().error || 'Server error'));
+  }
+
   submitForm() {
     console.log('Sends form to the Server');
+  }
+
+  getJobsGroupsParam () {
+    return this.jobsGroupsParam;
   }
 }
